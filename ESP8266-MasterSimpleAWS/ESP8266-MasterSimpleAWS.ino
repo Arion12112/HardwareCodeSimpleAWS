@@ -1,15 +1,20 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClientSecure.h>
 #include <PubSubClient.h>
-#include <SoftwareSerial.h>
-SoftwareSerial s(D6,D5);
-#include <ArduinoJson.h>
+#include <ArduinoJson.h> //https://github.com/bblanchon/ArduinoJson (use v6.xx)
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <Wire.h>
 #define emptyString String()
 
+//Follow instructions from https://github.com/debsahu/ESP-MQTT-AWS-IoT-Core/blob/master/doc/README.md
+//Enter values in secrets.h ▼
 #include "secrets.h"
+
+//RTC_DS3231 rtc;
+//
+//char t[32];
+
 
 char daysOfTheWeek[7][12] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
 const long utcOffsetInSeconds = 25200; //WIB +07.00
@@ -167,27 +172,17 @@ void checkWiFiThenReboot(void)
 //masukkan data pembacaan sensor ke fungsi ini
 void sendDataSensor(void)
 {
-//update waktu untuk pengiriman data
-//DynamicJsonDocument doc(1024);
-//DeserializationError error = deserializeJson(doc, s);
-//if (error)
-//{ 
-//  Serial.println("error"); 
-//  return;
-//}
-//String value = doc["value"];
-String value = s.readString();
-Serial.println(value);
-delay(5000);
-  now = time(nullptr);
+  //update waktu untuk pengiriman data
   timeClient.update();
 
   //inisialisasi payload untuk dikirim
-  String message = value;
+  String message = "";
   String formattedDate = String(timeClient.getFullFormattedTime());
 
+  int suhu = random(70); //ganti dengan data sensor
   //jadikan data sensor sebagai bentuk string
- message += ","; //tambahkan koma jika ingin menambah sensor
+  message += String(suhu); //ganti dengan variabel data dari sensor
+  message += ","; //tambahkan koma jika ingin menambah sensor
   //format untuk tanggal jangan diubah
   message += formattedDate;//tanggal ditaruh di bagian akhir string
 
@@ -195,12 +190,11 @@ delay(5000);
     pubSubErr(client.state());
 }
 
- 
-void setup() {
-    // Initialize Serial port
+void setup()
+{
   Serial.begin(115200);
-  s.begin(9600);
-   timeClient.begin();
+
+  timeClient.begin();
 
 
   WiFi.hostname(THINGNAME);
@@ -224,13 +218,11 @@ void setup() {
   client.setCallback(messageReceived);
 
   connectToMqtt();
-
-  while (!Serial) continue;
 }
- 
-void loop() {    
-  now = time(nullptr);
 
+void loop()
+{
+  now = time(nullptr);
   if (!client.connected())
   {
     checkWiFiThenMQTT();
@@ -240,7 +232,7 @@ void loop() {
   else
   {
     client.loop();
-    if (millis() - lastMillis > 10000)//kirim data setiap 5 detik
+    if (millis() - lastMillis > 5000)//kirim data setiap 5 detik
     {
       lastMillis = millis();
       sendDataSensor();

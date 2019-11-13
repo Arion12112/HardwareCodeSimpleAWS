@@ -1,4 +1,4 @@
-const int ldr = 4;
+const int ldr = A0;
 
 
 void setup() {
@@ -8,7 +8,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(digitalRead(ldr));
+  Serial.println(analogRead(ldr));
   // put your main code here, to run repeatedly:
   delay(500);
 
