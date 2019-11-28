@@ -69,7 +69,7 @@ void SensorRead()
     
     if(digitalRead(condition) == LOW) 
     {
-    Condition = "Lembab";
+    Condition = "Basah";
     delay(10); 
     }
     else
@@ -115,13 +115,10 @@ void SensorRead()
   void loop() {
 yield();
 SensorRead();
-delay(1000);
 s.print(data);
-//DynamicJsonDocument doc(1024);
-//doc["value"] = data;
-//serializeJson(doc, s);
+s.flush();
 data = "";
 
 
-delay(8000);
+delay(59000);
 }

@@ -7,6 +7,9 @@ SoftwareSerial s(D6,D5);
 #include <NTPClient.h>
 #include <WiFiUdp.h>
 #include <Wire.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
+#include <WiFiManager.h>     
 #define emptyString String()
 
 #include "secrets.h"
@@ -176,6 +179,7 @@ void sendDataSensor(void)
 //  return;
 //}
 //String value = doc["value"];
+
 String value = s.readString();
 Serial.println(value);
 delay(5000);
@@ -203,12 +207,16 @@ void setup() {
    timeClient.begin();
 
 
-  WiFi.hostname(THINGNAME);
+  //WiFi.hostname(THINGNAME);
 
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, pass);
-  connectToWiFi(String("Attempting to connect to SSID: ") + String(ssid));
-
+  //WiFi.mode(WIFI_STA);
+  //WiFi.begin(ssid, pass);
+  //connectToWiFi(String("Attempting to connect to SSID: ") + String(ssid));
+  WiFiManager wifiManager;
+  wifiManager.autoConnect(THINGNAME);
+  //reset saved settings
+  //wifiManager.resetSettings();
+  Serial.println("connected...yeey :)");
   NTPConnect();
 
 #ifdef ESP32
@@ -240,10 +248,8 @@ void loop() {
   else
   {
     client.loop();
-    if (millis() - lastMillis > 10000)//kirim data setiap 5 detik
-    {
-      lastMillis = millis();
+      while(s.available())
       sendDataSensor();
-    }
+    
   }
 }

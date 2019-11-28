@@ -2,8 +2,8 @@
 
 #define SECRET
 
-const char ssid[] = "lolman";
-const char pass[] = "lolman472050";
+const char ssid[] = "JAPARI";
+const char pass[] = "dibawahkalender";
 
 #define THINGNAME "SimpleAWSDevice"
 
